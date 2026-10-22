@@ -1,0 +1,8 @@
+{
+  "manifest_version": 3,
+  "name": "Birdy Close Reading",
+  "description": "Send selected webpage text to Birdy for close reading.",
+  "version": "1.0.0",
+  "permissions": ["contextMenus", "tabs"],
+  "background": { "service_worker": "background.js" }
+}

@@ -1,0 +1,12 @@
+.build/
+dist/
+.DS_Store
+
+# Local previews and credentials
+artifacts/
+.env
+.env.*
+!.env.example
+*.p12
+*.pfx
+*.key

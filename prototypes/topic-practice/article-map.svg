@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1580" height="1590" viewBox="0 0 1580 1590" role="img" aria-labelledby="title desc"><title id="title">Electric cars through a smartphone lens · 文章观点树</title><desc id="desc">五条分支：核心视角、购买标准、购买路径、数字体验、风险边界，最后汇入安全与连接并重的结论。</desc><rect width="100%" height="100%" fill="#fbfcfe"/><style>text{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif} .en{font-family:Georgia,serif} .label{font-size:11px;letter-spacing:1.8px;fill:#8b96a5} .cn{font-size:14px;fill:#7a8696} .leaf-title{font-size:19px;fill:#334157} .edge{fill:none;stroke-width:1.5}</style>
+<text x="60" y="51" class="label">BIRDY  /  ARTICLE MAP</text>
+<text x="60" y="98" class="en" font-size="32" fill="#24354b">Buying electric cars as if they were smartphones</text>
+<text x="60" y="129" class="cn">按文章论证结构整理 · 英文观点 + 中文提示 · 各分支为概括，不是逐字引文</text>
+<rect x="48" y="678" width="290" height="170" rx="13" fill="#eaf1fa"/>
+<text x="72" y="711" class="label">CENTRAL CLAIM</text>
+<text x="72" y="748" class="en" font-size="24" fill="#2f507a">A car is becoming</text>
+<text x="72" y="780" class="en" font-size="24" fill="#2f507a">part of digital life.</text>
+<text x="72" y="817" class="cn">汽车评价，正在带上“手机视角”。</text>
+<path d="M 338 763.0 H 365 Q 388 763.0 388 740.0 V 296.0 Q 388 278.0 410 278.0 H 438" stroke="#547ba888" class="edge"/>
+<text x="444" y="239.0" class="en" font-size="17" fill="#547ba8">01</text>
+<text x="444" y="269.0" class="en" font-size="23" fill="#547ba8">A new way of seeing cars</text>
+<text x="444" y="331.0" font-size="13" fill="#8892a0">核心视角：汽车是什么？</text>
+<path d="M 777 282.0 H 807" stroke="#547ba899" class="edge"/>
+<path d="M 807 282.0 V 220 H 842" stroke="#547ba877" class="edge"/>
+<circle cx="842" cy="220" r="3" fill="#547ba8"/>
+<text x="859" y="223" class="en leaf-title">A mechanical product → a digital platform</text>
+<text x="859" y="248" class="cn">作者的类比：年轻消费者把电车看作承载操作系统与软件的硬件平台。</text>
+<path d="M 807 282.0 V 308 H 842" stroke="#547ba877" class="edge"/>
+<circle cx="842" cy="308" r="3" fill="#547ba8"/>
+<text x="859" y="311" class="en leaf-title">A bonus → a baseline expectation</text>
+<text x="859" y="336" class="cn">软件能力和数字整合逐渐从加分项变为基本期待。</text>
+<path d="M 338 763.0 H 365 Q 388 763.0 388 740.0 V 565.0 Q 388 547.0 410 547.0 H 438" stroke="#72918488" class="edge"/>
+<text x="444" y="508.0" class="en" font-size="17" fill="#729184">02</text>
+<text x="444" y="538.0" class="en" font-size="23" fill="#729184">Different buying priorities</text>
+<text x="444" y="600.0" font-size="13" fill="#8892a0">代际对比：用什么标准买车？</text>
+<path d="M 777 551.0 H 807" stroke="#72918499" class="edge"/>
+<path d="M 807 551.0 V 445 H 842" stroke="#72918477" class="edge"/>
+<circle cx="842" cy="445" r="3" fill="#729184"/>
+<text x="859" y="448" class="en leaf-title">Traditional priorities</text>
+<text x="859" y="473" class="cn">文章以马力、变速箱、品牌历史等传统关注点作为对照。</text>
+<path d="M 807 551.0 V 533 H 842" stroke="#72918477" class="edge"/>
+<circle cx="842" cy="533" r="3" fill="#729184"/>
+<text x="859" y="536" class="en leaf-title">Technology, charging &amp; cost</text>
+<text x="859" y="561" class="cn">年轻消费者重视车内技术、充电设施与经济激励；并非只看屏幕。</text>
+<path d="M 807 551.0 V 621 H 842" stroke="#72918477" class="edge"/>
+<circle cx="842" cy="621" r="3" fill="#729184"/>
+<text x="859" y="624" class="en leaf-title">Mobility as a service</text>
+<text x="859" y="649" class="cn">作者将年轻群体描述为更关注时间、成本和可靠性，也更愿考虑共享出行。</text>
+<path d="M 338 763.0 H 365 Q 388 763.0 388 786.0 V 795.0 Q 388 813.0 410 813.0 H 438" stroke="#a1886088" class="edge"/>
+<text x="444" y="774.0" class="en" font-size="17" fill="#a18860">03</text>
+<text x="444" y="804.0" class="en" font-size="23" fill="#a18860">A digital buying journey</text>
+<text x="444" y="866.0" font-size="13" fill="#8892a0">购买路径：先在哪里认识一辆车？</text>
+<path d="M 777 817.0 H 807" stroke="#a1886099" class="edge"/>
+<path d="M 807 817.0 V 755 H 842" stroke="#a1886077" class="edge"/>
+<circle cx="842" cy="755" r="3" fill="#a18860"/>
+<text x="859" y="758" class="en leaf-title">Discovery happens online</text>
+<text x="859" y="783" class="cn">社交媒体、线上平台与视觉内容成为了解产品的重要入口。</text>
+<path d="M 807 817.0 V 843 H 842" stroke="#a1886077" class="edge"/>
+<circle cx="842" cy="843" r="3" fill="#a18860"/>
+<text x="859" y="846" class="en leaf-title">Peers help shape the decision</text>
+<text x="859" y="871" class="cn">用户内容、同伴意见、测评与数字广告共同影响购买判断。</text>
+<path d="M 338 763.0 H 365 Q 388 763.0 388 786.0 V 1064.0 Q 388 1082.0 410 1082.0 H 438" stroke="#7e7aa388" class="edge"/>
+<text x="444" y="1043.0" class="en" font-size="17" fill="#7e7aa3">04</text>
+<text x="444" y="1073.0" class="en" font-size="23" fill="#7e7aa3">What the smartphone lens</text>
+<text x="444" y="1101.0" class="en" font-size="23" fill="#7e7aa3">brings</text>
+<text x="444" y="1135.0" font-size="13" fill="#8892a0">吸引力：熟悉的数字体验延伸到汽车</text>
+<path d="M 777 1086.0 H 807" stroke="#7e7aa399" class="edge"/>
+<path d="M 807 1086.0 V 980 H 842" stroke="#7e7aa377" class="edge"/>
+<circle cx="842" cy="980" r="3" fill="#7e7aa3"/>
+<text x="859" y="983" class="en leaf-title">A familiar ecosystem</text>
+<text x="859" y="1008" class="cn">CarPlay / Android Auto 等连接，让音乐、信息与个人设置延续。</text>
+<path d="M 807 1086.0 V 1068 H 842" stroke="#7e7aa377" class="edge"/>
+<circle cx="842" cy="1068" r="3" fill="#7e7aa3"/>
+<text x="859" y="1071" class="en leaf-title">Personalisation &amp; entertainment</text>
+<text x="859" y="1096" class="cn">个性化、娱乐能力与软件生态进入产品价值判断。</text>
+<path d="M 807 1086.0 V 1156 H 842" stroke="#7e7aa377" class="edge"/>
+<circle cx="842" cy="1156" r="3" fill="#7e7aa3"/>
+<text x="859" y="1159" class="en leaf-title">Responsiveness signals quality</text>
+<text x="859" y="1184" class="cn">卡顿或难用的界面，可能拖累消费者对整辆车的评价。</text>
+<path d="M 338 763.0 H 365 Q 388 763.0 388 786.0 V 1374.0 Q 388 1392.0 410 1392.0 H 438" stroke="#b2807888" class="edge"/>
+<text x="444" y="1353.0" class="en" font-size="17" fill="#b28078">05</text>
+<text x="444" y="1383.0" class="en" font-size="23" fill="#b28078">Where the analogy breaks down</text>
+<text x="444" y="1445.0" font-size="13" fill="#8892a0">风险边界：汽车终究是高速行驶的工具</text>
+<path d="M 777 1396.0 H 807" stroke="#b2807899" class="edge"/>
+<path d="M 807 1396.0 V 1290 H 842" stroke="#b2807877" class="edge"/>
+<circle cx="842" cy="1290" r="3" fill="#b28078"/>
+<text x="859" y="1293" class="en leaf-title">Privacy &amp; trust</text>
+<text x="859" y="1318" class="cn">车辆联网也带来数据收集与隐私顾虑，影响采用意愿。</text>
+<path d="M 807 1396.0 V 1378 H 842" stroke="#b2807877" class="edge"/>
+<circle cx="842" cy="1378" r="3" fill="#b28078"/>
+<text x="859" y="1381" class="en leaf-title">Screens compete for attention</text>
+<text x="859" y="1406" class="cn">复杂菜单增加认知负担；调整基础功能时，视线可能离开道路。</text>
+<path d="M 807 1396.0 V 1466 H 842" stroke="#b2807877" class="edge"/>
+<circle cx="842" cy="1466" r="3" fill="#b28078"/>
+<text x="859" y="1469" class="en leaf-title">Keep essential controls tangible</text>
+<text x="859" y="1494" class="cn">文中以大众、马自达为例：核心功能保留实体控制，与数字娱乐共存。</text>
+<line x1="48" y1="1513" x2="1532" y2="1513" stroke="#dfe6ef"/>
+<text x="60" y="1547" class="label">AUTHOR’S CONCLUSION</text>
+<text x="310" y="1548" class="en" font-size="23" fill="#2f507a">Digital connection + safety-first design</text>
+<text x="310" y="1575" class="cn">未来优势来自数字连接与安全设计的平衡，而非单纯把汽车变成一部手机。</text>
+</svg>

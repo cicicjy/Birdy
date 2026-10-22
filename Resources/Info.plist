@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>CFBundleExecutable</key><string>Suibiancha</string>
+  <key>CFBundleIdentifier</key><string>com.alexjiang.suibiancha</string>
+  <key>CFBundleName</key><string>Birdy</string>
+  <key>CFBundleDisplayName</key><string>Birdy</string>
+  <key>CFBundleIconFile</key><string>Birdy</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleVersion</key><string>0.1.0</string>
+  <key>CFBundleShortVersionString</key><string>0.1.0</string>
+  <key>LSMinimumSystemVersion</key><string>15.2</string>
+  <key>LSUIElement</key><false/>
+  <key>NSScreenCaptureUsageDescription</key><string>Birdy 需要在你主动框选时截取屏幕区域，用于识别和精读。</string>
+  <key>NSAppleEventsUsageDescription</key><string>Birdy 可读取 Chrome 当前标签页网址并附加到精读记录。</string>
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key><string>com.alexjiang.suibiancha.close-reading</string>
+      <key>CFBundleURLSchemes</key><array><string>birdy</string></array>
+    </dict>
+  </array>
+  <key>NSServices</key>
+  <array>
+    <dict>
+      <key>NSMenuItem</key>
+      <dict>
+        <key>default</key><string>Birdy 精读</string>
+      </dict>
+      <key>NSMessage</key><string>closeReadingSelection</string>
+      <key>NSPortName</key><string>Birdy</string>
+      <key>NSRequiredContext</key><dict/>
+      <key>NSSendTypes</key>
+      <array><string>public.utf8-plain-text</string></array>
+      <key>NSReturnTypes</key><array/>
+    </dict>
+  </array>
+</dict></plist>
