@@ -19,29 +19,22 @@ struct SentencePatternPane: View {
     var body: some View {
         GeometryReader { geometry in
         let compact = geometry.size.width < 1000
-        VStack(spacing: 0) {
-            HStack(spacing: 14) {
-                Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                TextField("搜索句式或原句", text: $search).textFieldStyle(.plain)
-                    .accessibilityLabel("搜索句式库")
-                if !search.isEmpty {
-                    Button { search = "" } label: { Image(systemName: "xmark.circle.fill") }.buttonStyle(.plain).help("清空搜索")
-                }
-                Button("刷新历史句式") { Task { await store.refreshSentencePatterns(force: true) } }
-                    .disabled(store.refreshingSentencePatterns)
-            }.padding(.horizontal, compact ? 20 : 32).padding(.vertical, 14)
+        HStack(spacing: 0) {
+            BirdyCategorySidebar(title: "表达功能", categories: SentencePatternDiscovery.categories, selection: $category) { name in
+                name == "全部" ? all.count : all.filter { $0.category == name }.count
+            }.frame(width: compact ? 164 : 190)
             Divider()
-            HStack(alignment: .top, spacing: 0) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 3) {
-                        categoryButton("全部")
-                        ForEach(SentencePatternDiscovery.categories, id: \.self) { categoryButton($0) }
-                    }.padding(12)
-                }.frame(width: compact ? 164 : 190)
+            VStack(spacing: 0) {
+                HStack(spacing: 16) {
+                    BirdyLibraryTitle(title: category == "全部" ? "句式库" : category, count: "\(filtered.count) 条")
+                    Spacer(minLength: 0)
+                    BirdyLibrarySearch(placeholder: "搜索句式或原句", text: $search).frame(maxWidth: 300)
+                    Button("刷新历史句式") { Task { await store.refreshSentencePatterns(force: true) } }
+                        .disabled(store.refreshingSentencePatterns)
+                }.padding(.horizontal, compact ? 20 : 28).padding(.vertical, 14)
                 Divider()
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-                        Text(category == "全部" ? "从原句积累写作句式" : category).font(BirdyDesign.section)
                         if store.refreshingSentencePatterns {
                             HStack(spacing: 10) {
                                 ProgressView().controlSize(.small)
@@ -74,20 +67,6 @@ struct SentencePatternPane: View {
                 store.editSentencePattern(entry, pattern: pattern, category: category)
             }
         }
-    }
-    private func categoryButton(_ name: String) -> some View {
-        let count = name == "全部" ? all.count : all.filter { $0.category == name }.count
-        return Button { category = name } label: {
-            HStack(spacing: 8) {
-                Text(name).font(BirdyDesign.body)
-                Spacer(minLength: 4)
-                Text("\(count)").font(BirdyDesign.metadata).monospacedDigit()
-            }.foregroundStyle(category == name ? BirdyDesign.accent : Color.primary)
-                .padding(.horizontal, 10).padding(.vertical, 9).frame(maxWidth: .infinity)
-                .background(category == name ? BirdyDesign.tint : Color.clear, in: RoundedRectangle(cornerRadius: 8))
-                .contentShape(Rectangle())
-        }.buttonStyle(.plain).accessibilityLabel("\(name)，\(count) 条句式")
-            .accessibilityAddTraits(category == name ? .isSelected : [])
     }
     private func patternRow(_ entry: SentencePattern) -> some View {
         VStack(alignment: .leading, spacing: 10) {

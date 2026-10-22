@@ -247,43 +247,48 @@ struct OriginalsWall: View {
     @ObservedObject var store: AppStore
     let openRecord: (ReadingRecord) -> Void
     @State private var search = ""
+    @State private var topic = "全部"
 
     private var visibleRecords: [ReadingRecord] {
-        guard !search.isEmpty else { return store.records }
-        return store.records.filter {
-            ($0.title ?? "").localizedCaseInsensitiveContains(search)
+        store.records.filter {
+            (topic == "全部" || ($0.classification?.category ?? "待分类") == topic)
+                && (search.isEmpty || ($0.title ?? "").localizedCaseInsensitiveContains(search)
                 || $0.editedText.localizedCaseInsensitiveContains(search)
-                || $0.explanation.localizedCaseInsensitiveContains(search)
+                || $0.explanation.localizedCaseInsensitiveContains(search))
         }
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                Text("原文摘录").font(BirdyDesign.section)
-                Text("\(visibleRecords.count) 段").font(BirdyDesign.metadata).foregroundStyle(.secondary)
-                Spacer()
-                TextField("搜索原句", text: $search)
-                    .textFieldStyle(.roundedBorder).frame(maxWidth: 250)
-            }.padding(.horizontal, 18).padding(.vertical, 12)
-            Divider()
-            if visibleRecords.isEmpty {
-                ContentUnavailableView(search.isEmpty ? "还没有摘录" : "没有找到原句",
-                                       systemImage: "text.viewfinder",
-                                       description: Text(search.isEmpty ? "选中文字后按 ⌘4 直接精读；未选中文字时按 ⌘4 框选截图，或在原文中右键使用「服务 → Birdy 精读」。保存的截图和句子会排列在这里。" : "试试其他搜索词。"))
-            } else {
-                ScrollView {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 270), spacing: 14)], alignment: .leading, spacing: 14) {
-                        ForEach(visibleRecords) { record in
-                            Button { openRecord(record) } label: {
-                                OriginalsCard(record: record)
-                            }
-                            .buttonStyle(.plain)
-                            .help("打开这段原文的精读记录")
+        GeometryReader { geometry in
+            let inset: CGFloat = geometry.size.width < 1000 ? 20 : 28
+            HStack(spacing: 0) {
+                BirdyCategorySidebar(categories: TopicClassification.categories + ["待分类"], selection: $topic) { name in
+                    store.records.filter { name == "全部" || ($0.classification?.category ?? "待分类") == name }.count
+                }.frame(width: geometry.size.width < 1000 ? 164 : 190)
+                Divider()
+                VStack(spacing: 0) {
+                    HStack(spacing: 16) {
+                        BirdyLibraryTitle(title: topic == "全部" ? "原文摘录" : topic, count: "\(visibleRecords.count) 段")
+                        Spacer(minLength: 0)
+                        BirdyLibrarySearch(placeholder: "搜索原句", text: $search).frame(maxWidth: 300)
+                    }.padding(.horizontal, inset).padding(.vertical, 14)
+                    Divider()
+                    if visibleRecords.isEmpty {
+                        ContentUnavailableView(store.records.isEmpty ? "还没有摘录" : "没有找到原句",
+                            systemImage: "text.viewfinder",
+                            description: Text(store.records.isEmpty ? "选中文字后按 ⌘4 直接精读；没有选中文字时进入截图框选。也可以右键使用「服务 → Birdy 精读」。" : "试试其他搜索词，或切换到全部话题。"))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        ScrollView {
+                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 260), spacing: 20, alignment: .top)], alignment: .leading, spacing: 20) {
+                                ForEach(visibleRecords) { record in
+                                    Button { openRecord(record) } label: { OriginalsCard(record: record) }
+                                        .buttonStyle(.plain).help("打开这段原文的精读记录")
+                                }
+                            }.padding(inset)
                         }
                     }
-                    .padding(18)
-                }
+                }.frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }
@@ -314,7 +319,7 @@ private struct OriginalsCard: View {
             if let image = screenshot {
                 Image(nsImage: image)
                     .resizable().scaledToFit()
-                    .frame(maxWidth: .infinity).frame(height: 250)
+                    .frame(maxWidth: .infinity).frame(height: 200)
                     .background(Color(nsColor: .windowBackgroundColor).opacity(0.55))
                     .clipped()
             }
@@ -336,13 +341,13 @@ private struct OriginalsCard: View {
                         Text("已精读").foregroundStyle(BirdyDesign.accent)
                     }
                 }.font(BirdyDesign.metadata).foregroundStyle(.secondary)
-            }.padding(12)
+            }.padding(16)
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
-        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.primary.opacity(0.08), lineWidth: 1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .contentShape(RoundedRectangle(cornerRadius: 12))
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 6))
+        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.primary.opacity(0.08), lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .contentShape(RoundedRectangle(cornerRadius: 6))
     }
 }
 
@@ -887,23 +892,37 @@ struct ReadingPane: View {
     @State private var enrichingVocabularyIDs: Set<UUID> = []
     @State private var pendingAnnotations: [UUID: (recordID: UUID, word: String)] = [:]
     @State private var topicFilter = "全部"
+    @State private var recordSearch = ""
     private var visibleRecords: [ReadingRecord] {
-        store.records.filter { topicFilter == "全部" || ($0.classification?.category ?? "待分类") == topicFilter }
+        store.records.filter {
+            (topicFilter == "全部" || ($0.classification?.category ?? "待分类") == topicFilter)
+                && (recordSearch.isEmpty || [$0.title ?? "", $0.editedText, $0.explanation].contains { $0.localizedCaseInsensitiveContains(recordSearch) })
+        }
     }
     var body: some View {
+        GeometryReader { geometry in
         HStack(spacing: 0) {
             VStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("精读记录").font(BirdyDesign.heading)
+                        Spacer()
+                        Text("\(visibleRecords.count) 段").font(BirdyDesign.metadata).foregroundStyle(.secondary)
+                    }
+                    BirdyLibrarySearch(placeholder: "搜索记录", text: $recordSearch)
                 Picker("主题", selection: $topicFilter) {
                     Text("全部话题").tag("全部")
                     Text("待分类").tag("待分类")
                     ForEach(TopicClassification.categories, id: \.self) { Text($0).tag($0) }
-                }.padding(10)
+                }.labelsHidden().accessibilityLabel("筛选精读话题")
+                }.padding(16)
+                Divider()
             List(selection: $store.selectedRecordID) {
                 ForEach(visibleRecords) { record in
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(alignment: .top, spacing: 6) {
                             Text(record.title ?? (record.editedText.isEmpty ? "新截图" : String(record.editedText.prefix(42))))
-                                .lineLimit(2).frame(maxWidth: .infinity, alignment: .leading)
+                                .font(BirdyDesign.emphasis).lineLimit(3).frame(maxWidth: .infinity, alignment: .leading)
                             Menu {
                                 Button("重命名…") { renameRecordID = record.id; renameDraft = record.title ?? String(record.editedText.prefix(42)); showRename = true }
                                 Button("删除截图记录", role: .destructive) { deleteRecordID = record.id; showDeleteConfirmation = true }
@@ -919,14 +938,24 @@ struct ReadingPane: View {
                             if let purpose = record.purpose { Text(purpose).fixedSize() }
                         }.font(BirdyDesign.metadata).foregroundStyle(BirdyDesign.secondaryText)
                         Text(record.createdAt.compactReadingDate).font(BirdyDesign.metadata).foregroundStyle(.secondary)
-                    }.frame(maxWidth: .infinity, alignment: .leading).tag(record.id as UUID?)
+                    }.padding(.vertical, 8).frame(maxWidth: .infinity, alignment: .leading).tag(record.id as UUID?)
                 }.onDelete { offsets in for i in offsets { store.deleteRecord(visibleRecords[i].id) } }
-            }
-            }.frame(width: 240)
+            }.listStyle(.sidebar).scrollContentBackground(.hidden)
+                if visibleRecords.isEmpty {
+                    Text("没有符合条件的记录").font(BirdyDesign.caption).foregroundStyle(.secondary).padding(16)
+                }
+            }.frame(width: geometry.size.width < 1000 ? 230 : 260).background(BirdyDesign.quietSurface)
             Divider()
-            if let record = store.selectedRecord { detail(record).padding(16) }
-            else { ContentUnavailableView("还没有记录", systemImage: "text.viewfinder") }
+            if let record = store.selectedRecord { detail(record) }
+            else {
+                ContentUnavailableView(store.records.isEmpty ? "还没有记录" : "没有符合条件的记录", systemImage: "text.viewfinder",
+                    description: Text(store.records.isEmpty ? "选中文字后按 ⌘4 开始精读。" : "试试其他搜索词，或切换到全部话题。"))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
+        }
+        .onChange(of: topicFilter) { _, _ in selectVisibleRecord() }
+        .onChange(of: recordSearch) { _, _ in selectVisibleRecord() }
         .task { await store.classifyExistingRecords() }
         .onChange(of: store.selectedRecordID) { _, id in pdfPage = String(store.records.first(where: { $0.id == id })?.pdfPage ?? 1) }
         .alert("重命名截图记录", isPresented: $showRename) {
@@ -941,27 +970,28 @@ struct ReadingPane: View {
     }
     @ViewBuilder private func detail(_ record: ReadingRecord) -> some View {
         GeometryReader { dimensions in
+            let inset: CGFloat = dimensions.size.width < 800 ? 20 : 28
             let cardColumns = dimensions.size.width >= 1050
                 ? [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
                 : [GridItem(.flexible())]
             VStack(spacing: 0) {
-                HStack {
-                    TopicEditor(classification: record.classification, restoreAutomatic: { Task { await store.restoreAutomaticClassification(for: record.id) } }) { store.setClassification($0, for: record.id) }
-                    Spacer()
-                    Picker("用途", selection: Binding(get: { store.records.first(where: { $0.id == record.id })?.purposeOverride ?? "自动" }, set: { value in
-                        guard var current = store.records.first(where: { $0.id == record.id }) else { return }
-                        current.purposeOverride = value == "自动" ? nil : value
-                        store.update(current)
-                    })) {
-                        Text("自动：\(record.automaticPurpose ?? "无明显用途")").tag("自动")
-                        Text("无").tag("")
-                        ForEach(["词汇积累", "数据描述", "观点展开"], id: \.self) { Text($0).tag($0) }
-                    }.frame(width: 210).font(BirdyDesign.metadata)
-                }.padding(.bottom, 12)
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(record.title ?? record.classification?.topics.first ?? "精读记录")
+                        .font(BirdyDesign.section).lineLimit(2)
+                    Text("\(record.createdAt.compactReadingDate) · \(record.sourceApp)")
+                        .font(BirdyDesign.metadata).foregroundStyle(.secondary)
+                }.frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, inset).padding(.top, 18).padding(.bottom, 12)
+                ViewThatFits(in: .horizontal) {
+                    recordControls(record)
+                    recordControls(record, stacked: true)
+                }.padding(.horizontal, inset).padding(.bottom, 14)
+                Divider()
                 ScrollViewReader { scrollProxy in
                     ScrollView {
                         VStack(alignment: .leading, spacing: 12) {
-                            VStack(alignment: .leading, spacing: 14) {
+                            VStack(alignment: .leading, spacing: 20) {
+
                         if !record.editedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             let excerpt = record.editedText == record.ocrText && !record.ocrLines.isEmpty
                                 ? CaptureService.readableText(from: record.ocrLines)
@@ -974,18 +1004,17 @@ struct ReadingPane: View {
                                     savedWords: Set(store.words.filter { $0.recordID == record.id }.map { $0.word.lowercased() }), allowSavedSelection: true) { selection in
                                     saveVocabulary(word: selection, meaning: "", example: excerpt, for: record, addAnnotation: true)
                                 }
-                                .frame(width: max(100, dimensions.size.width - 28), alignment: .leading)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             }
                             .padding(14)
                             .background(BirdyDesign.sourceBackground, in: RoundedRectangle(cornerRadius: 10))
                         }
-                                VStack(alignment: .leading, spacing: 9) {
+                                VStack(alignment: .leading, spacing: 20) {
                                     if !record.explanation.isEmpty {
                                         VStack(alignment: .leading, spacing: 4) {
                                             Text("本段线索").font(BirdyDesign.label).foregroundStyle(BirdyDesign.accent)
                                             Text(record.explanation).font(BirdyDesign.emphasis).lineSpacing(1).fixedSize(horizontal: false, vertical: true)
-                                        }.frame(maxWidth: .infinity, alignment: .leading).padding(10)
-                                            .background(BirdyDesign.tint, in: RoundedRectangle(cornerRadius: 9))
+                                        }.frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 8)
                                     } else if busy || store.analyzingRecordIDs.contains(record.id) {
                                         HStack(spacing: 9) {
                                             ProgressView().controlSize(.small).tint(BirdyDesign.accent)
@@ -1013,7 +1042,7 @@ struct ReadingPane: View {
                                             Spacer()
                                             Text("\(record.notes.count) 处").font(BirdyDesign.caption).foregroundStyle(BirdyDesign.secondaryText)
                                         }
-                                        LazyVGrid(columns: cardColumns, alignment: .leading, spacing: 8) {
+                                        LazyVGrid(columns: cardColumns, alignment: .leading, spacing: 20) {
                                             ForEach(record.notes) { note in
                                                 let alreadySaved = store.words.contains {
                                                     $0.recordID == record.id && $0.word.caseInsensitiveCompare(note.quote) == .orderedSame
@@ -1056,9 +1085,9 @@ struct ReadingPane: View {
                                                         isExplanation: true) { selection in
                                                         saveVocabulary(word: selection, meaning: "", example: record.editedText, for: record)
                                                     }.frame(maxWidth: .infinity, alignment: .leading)
-                                                }.frame(maxWidth: .infinity, alignment: .leading).padding(10)
-                                                    .background(BirdyDesign.surface, in: RoundedRectangle(cornerRadius: 9))
-                                                    .overlay(RoundedRectangle(cornerRadius: 9).stroke(selectedNoteID == note.id ? Color.blue.opacity(0.8) : Color.black.opacity(0.08), lineWidth: selectedNoteID == note.id ? 2 : 1))
+                                                }.frame(maxWidth: .infinity, alignment: .leading).padding(16)
+                                                    .background(selectedNoteID == note.id ? BirdyDesign.tint : BirdyDesign.quietSurface, in: RoundedRectangle(cornerRadius: 6))
+                                                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(selectedNoteID == note.id ? BirdyDesign.accent.opacity(0.35) : .clear, lineWidth: 1))
                                                     .contentShape(RoundedRectangle(cornerRadius: 9))
                                                     .onHover { hovering in selectedNoteID = hovering ? note.id : pinnedNoteID }
                                                     .onTapGesture { pinnedNoteID = note.id; selectedNoteID = note.id }
@@ -1086,8 +1115,7 @@ struct ReadingPane: View {
                                             Text("问：\(latestQuestion.text)").font(BirdyDesign.caption).foregroundStyle(.secondary).lineLimit(2)
                                             Text(latestAnswer.text).font(BirdyDesign.body).lineSpacing(1.5).fixedSize(horizontal: false, vertical: true)
                                         }.frame(maxWidth: .infinity, alignment: .leading).padding(10)
-                                            .background(Color(red: 0.98, green: 0.97, blue: 0.93), in: RoundedRectangle(cornerRadius: 9))
-                                            .overlay(RoundedRectangle(cornerRadius: 9).stroke(.black.opacity(0.06), lineWidth: 1))
+                                            .background(BirdyDesign.quietSurface, in: RoundedRectangle(cornerRadius: 9))
                                             .popover(isPresented: $showAllTurns, arrowEdge: .top) {
                                                 ScrollView {
                                                     VStack(alignment: .leading, spacing: 12) {
@@ -1139,7 +1167,7 @@ struct ReadingPane: View {
                                 }
                             }.frame(maxWidth: .infinity, alignment: .topLeading)
                             .frame(maxWidth: .infinity, alignment: .topLeading).padding(.bottom, 12)
-                        }.padding(16)
+                        }.padding(inset)
                     }
                     .onChange(of: pinnedNoteID) { _, id in
                         guard let id else { return }
@@ -1164,9 +1192,47 @@ struct ReadingPane: View {
                         Button("发送") { Task { await ask(record) } }
                             .disabled(question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
-                }.padding(12)
+                }.padding(.horizontal, inset).padding(.vertical, 12)
             }
         }
+    }
+    private func selectVisibleRecord() {
+        if !visibleRecords.contains(where: { $0.id == store.selectedRecordID }) {
+            store.selectedRecordID = visibleRecords.first?.id
+        }
+    }
+
+    @ViewBuilder private func recordControls(_ record: ReadingRecord, stacked: Bool = false) -> some View {
+        if stacked {
+            VStack(alignment: .leading, spacing: 10) {
+                recordTopic(record)
+                recordPurpose(record)
+            }
+        } else {
+            HStack(spacing: 16) {
+                recordTopic(record)
+                Spacer(minLength: 12)
+                recordPurpose(record)
+            }
+        }
+    }
+
+    private func recordTopic(_ record: ReadingRecord) -> some View {
+        TopicEditor(classification: record.classification, restoreAutomatic: { Task { await store.restoreAutomaticClassification(for: record.id) } }) {
+            store.setClassification($0, for: record.id)
+        }.fixedSize()
+    }
+
+    private func recordPurpose(_ record: ReadingRecord) -> some View {
+        Picker("用途", selection: Binding(get: { store.records.first(where: { $0.id == record.id })?.purposeOverride ?? "自动" }, set: { value in
+            guard var current = store.records.first(where: { $0.id == record.id }) else { return }
+            current.purposeOverride = value == "自动" ? nil : value
+            store.update(current)
+        })) {
+            Text("自动：\(record.automaticPurpose ?? "无明显用途")").tag("自动")
+            Text("无").tag("")
+            ForEach(["词汇积累", "数据描述", "观点展开"], id: \.self) { Text($0).tag($0) }
+        }.frame(width: 210).font(BirdyDesign.metadata)
     }
     private func saveVocabulary(word: String, meaning: String, example: String, for record: ReadingRecord, annotationRect: ScreenshotRect? = nil, addAnnotation: Bool = false) {
         let cleanedWord = word.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1342,7 +1408,6 @@ struct VocabularyPane: View {
     var initialSearch: String = ""
     let openRecord: (UUID) -> Void
     @State private var search = ""
-    @FocusState private var searchFocused: Bool
     @State private var exportURL: URL?
     @State private var editingWord: VocabularyItem?
     @State private var topicFilter = "全部"
@@ -1359,50 +1424,51 @@ struct VocabularyPane: View {
         && $0.matchesSearch(search)
     } }
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Picker("主题", selection: $topicFilter) {
-                    Text("全部话题").tag("全部")
-                    Text("待分类").tag("待分类")
-                    ForEach(TopicClassification.categories, id: \.self) { Text($0).tag($0) }
-                }.frame(width: 190)
-                Button { searchFocused = true } label: {
-                    Image(systemName: "magnifyingglass").foregroundStyle(BirdyDesign.secondaryText)
-                }.buttonStyle(.plain).help("搜索主题、词条、释义或例句")
-                    .accessibilityLabel("搜索单词本")
-                TextField("搜索主题、词条、释义或例句", text: $search).textFieldStyle(.plain).focused($searchFocused)
-                if !search.isEmpty {
-                    Button { search = ""; searchFocused = true } label: { Image(systemName: "xmark.circle.fill") }
-                        .buttonStyle(.plain).foregroundStyle(BirdyDesign.secondaryText).help("清空搜索")
-                }
-                Button(recallMode ? "退出回忆" : "一键隐藏") {
-                    recallMode.toggle(); revealedCards.removeAll(); shuffledIDs = filtered.map(\.id)
-                }.keyboardShortcut("h", modifiers: [.command, .shift])
-                    .help("切换回忆模式 · ⌘⇧H")
-                if recallMode {
-                    Button("打乱") { shuffledIDs = filtered.map(\.id).shuffled(); revealedCards.removeAll() }
-                        .disabled(filtered.count < 2)
-                }
-                Button("导出 CSV") { do { exportURL = try store.exportWords(); store.statusMessage = "已导出：\(exportURL!.path)" } catch { store.statusMessage = "导出失败：\(error.localizedDescription)" } }
-                Button("完整备份 ZIP") { exportBackup() }
-            }.padding(.horizontal, 32).padding(.vertical, 12)
-            Divider()
-            HStack(spacing: 12) {
-                if store.refreshingExpressionLinks { ProgressView().controlSize(.small) }
-                Text(store.expressionLinkProgress.isEmpty ? "点击词条，展开原文中的近义表达关联" : store.expressionLinkProgress)
-                    .font(BirdyDesign.caption).foregroundStyle(.secondary)
-                Spacer()
-                if !store.expressionLinks.dismissed.isEmpty {
-                    Button("恢复隐藏关联") { store.restoreDismissedExpressionLinks() }
-                }
-                Button("刷新表达关联") { Task { await store.refreshExpressionLinks(force: true) } }
-                    .disabled(store.refreshingExpressionLinks)
-            }.padding(.horizontal, 32).padding(.vertical, 10)
-            if !store.expressionLinkError.isEmpty {
-                Text(store.expressionLinkError).font(BirdyDesign.caption).foregroundStyle(.red)
-                    .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 32).padding(.bottom, 10)
-            }
+        GeometryReader { geometry in
+            let inset: CGFloat = geometry.size.width < 1000 ? 20 : 28
+            HStack(spacing: 0) {
+                BirdyCategorySidebar(categories: TopicClassification.categories + ["待分类"], selection: $topicFilter) { name in
+                    store.words.filter { name == "全部" || ($0.classification?.category ?? "待分类") == name }.count
+                }.frame(width: geometry.size.width < 1000 ? 164 : 190)
+                Divider()
+                VStack(spacing: 0) {
+                    HStack(spacing: 12) {
+                        BirdyLibraryTitle(title: topicFilter == "全部" ? "单词本" : topicFilter, count: "\(filtered.count) 条")
+                        Spacer(minLength: 0)
+                        BirdyLibrarySearch(placeholder: "搜索词条、释义或例句", text: $search).frame(maxWidth: 300)
+                        Button(recallMode ? "退出回忆" : "一键隐藏") {
+                            recallMode.toggle(); revealedCards.removeAll(); shuffledIDs = filtered.map(\.id)
+                        }.keyboardShortcut("h", modifiers: [.command, .shift])
+                            .help("隐藏释义与例句，逐张揭晓 · ⌘⇧H")
+                        Menu {
+                            Button("导出 CSV") { do { exportURL = try store.exportWords(); store.statusMessage = "已导出：\(exportURL!.path)" } catch { store.statusMessage = "导出失败：\(error.localizedDescription)" } }
+                            Button("完整备份 ZIP") { exportBackup() }
+                            Divider()
+                            Button("刷新表达关联") { Task { await store.refreshExpressionLinks(force: true) } }
+                                .disabled(store.refreshingExpressionLinks)
+                            if !store.expressionLinks.dismissed.isEmpty {
+                                Button("恢复隐藏关联") { store.restoreDismissedExpressionLinks() }
+                            }
+                        } label: { Image(systemName: "ellipsis").frame(width: 20, height: 16) }
+                            .fixedSize().accessibilityLabel("单词本更多操作").help("导出、备份与表达关联维护")
+                    }.padding(.horizontal, inset).padding(.vertical, 14)
+                    Divider()
+                    if recallMode {
+                        HStack {
+                            Text("先回忆意思或造句，点击词条揭晓答案。")
+                                .font(BirdyDesign.caption).foregroundStyle(.secondary)
+                            Spacer()
+                            Button("打乱") { shuffledIDs = filtered.map(\.id).shuffled(); revealedCards.removeAll() }
+                                .disabled(filtered.count < 2)
+                        }.padding(.horizontal, inset).padding(.vertical, 10)
+                    }
+                    if store.refreshingExpressionLinks || !store.expressionLinkError.isEmpty {
+                        HStack(spacing: 10) {
+                            if store.refreshingExpressionLinks { ProgressView().controlSize(.small) }
+                            Text(store.expressionLinkError.isEmpty ? store.expressionLinkProgress : store.expressionLinkError)
+                                .font(BirdyDesign.caption).foregroundStyle(store.expressionLinkError.isEmpty ? Color.secondary : Color.red).textSelection(.enabled)
+                        }.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, inset).padding(.vertical, 10)
+                    }
             if recallMode {
                 ScrollView {
                     if filtered.isEmpty {
@@ -1437,7 +1503,7 @@ struct VocabularyPane: View {
                                 .accessibilityValue(revealedCards.contains(item.id) ? "答案已显示" : "答案已隐藏")
                                 .help(revealedCards.contains(item.id) ? "点击收起答案" : "点击揭晓答案")
                         }
-                    }.padding(32)
+                    }.padding(inset)
                 }
             } else {
             ScrollView {
@@ -1455,6 +1521,7 @@ struct VocabularyPane: View {
                                 } label: {
                                     HStack(spacing: 9) {
                                         Text(item.word).font(BirdyDesign.word).foregroundStyle(.primary)
+                                            .fixedSize(horizontal: false, vertical: true)
                                         Image(systemName: "point.3.connected.trianglepath.dotted").font(BirdyDesign.caption)
                                         Image(systemName: selectedGraphWordID == item.id ? "chevron.up" : "chevron.down").font(BirdyDesign.metadata)
                                     }.contentShape(Rectangle())
@@ -1473,11 +1540,11 @@ struct VocabularyPane: View {
                             HStack(spacing: 10) {
                                 Button { editingWord = item } label: {
                                     Image(systemName: "pencil").font(BirdyDesign.caption).foregroundStyle(.secondary)
-                                }.buttonStyle(.plain).help("编辑词条")
+                                }.buttonStyle(.plain).help("编辑词条").accessibilityLabel("编辑词条")
                                 Button(role: .destructive) { store.deleteWord(item.id) } label: {
                                     Image(systemName: "trash").font(BirdyDesign.caption).foregroundStyle(.secondary)
-                                }.buttonStyle(.plain).help("删除词条")
-                            }.padding(.top, 3)
+                                }.buttonStyle(.plain).help("删除词条 · ⌘Z 撤回").accessibilityLabel("删除词条")
+                            }.fixedSize(horizontal: true, vertical: false).padding(.top, 3)
                         }
                                 HStack(alignment: .bottom, spacing: 14) {
                                 TopicEditor(classification: item.classification, restoreAutomatic: { store.restoreWordClassification(item.id) }) { topic in
@@ -1498,11 +1565,13 @@ struct VocabularyPane: View {
                                 ExpressionGraphView(store: store, word: item, openRecord: openRecord)
                                     .padding(.top, 14)
                             }
-                        }.padding(.vertical, 16).padding(.horizontal, 20)
-                        Divider().padding(.leading, 20)
+                        }.padding(.vertical, 24)
+                        Divider()
                     }
-                }.padding(.horizontal, 12)
+                }.padding(.horizontal, inset)
             }
+            }
+        }
             }
         }
         .onChange(of: topicFilter) { _, _ in revealedCards.removeAll(); shuffledIDs = filtered.map(\.id) }
