@@ -26,4 +26,4 @@
 
 ## 恢复
 
-见 [UI-rollback.md](UI-rollback.md)。旧版代码标签已保存至GitHub，旧应用ZIP独立保留；新布局在专用分支，未替换main历史。
+见 [UI-rollback.md](UI-rollback.md)。旧版代码标签已保存至GitHub，旧应用ZIP独立保留；新布局在专用分支开发，经用户确认后发布到main，历史提交及回退点继续保留。
